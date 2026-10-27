@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+.vscode/
+.pytest_cache/
+.DS_Store
+
+data/raw/
+data/processed/
+data/cedif/*
+!data/cedif/README.md

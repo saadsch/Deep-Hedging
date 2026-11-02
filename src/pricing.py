@@ -19,20 +19,28 @@ Cite the edition you use in the paper.
 import numpy as np
 from scipy.stats import norm
 
+def _d1_d2(S, K, T, r, q, sigma):
+    """The two Black-Scholes terms, shared by the price and the delta."""
+    vol = sigma * np.sqrt(T)                                   # total uncertainty, σ√T
+    d1 = (np.log(S / K) + (r - q + 0.5 * sigma**2) * T) / vol  # distance to strike, in std devs
+    d2 = d1 - vol
+    return d1, d2
+
+
 
 def bs_put(S, K, T, r, q, sigma):
-    """European put, Black-Scholes-Merton with continuous dividend yield q.
+    """European put = K e^(-rT) N(-d2) - S e^(-qT) N(-d1)."""
+    d1, d2 = _d1_d2(S, K, T, r, q, sigma)
+    receive = K * np.exp(-r * T) * norm.cdf(-d2)   # strike received, today's money, x prob. of exercise
+    give = S * np.exp(-q * T) * norm.cdf(-d1)      # index handed over, net of dividends
+    return receive - give
 
-    Hints:
-      d1 = [ln(S/K) + (r - q + sigma^2 / 2) T] / (sigma sqrt(T)),  d2 = d1 - sigma sqrt(T)
-      put = K e^{-rT} N(-d2) - S e^{-qT} N(-d1)
-    """
-    raise NotImplementedError("write bs_put")
 
 
 def bs_put_delta(S, K, T, r, q, sigma):
-    """Delta of the European put: dPut/dS = -e^{-qT} N(-d1)."""
-    raise NotImplementedError("write bs_put_delta")
+    """Change in the put price for a 1-point move in the index: -e^(-qT) N(-d1)."""
+    d1, _ = _d1_d2(S, K, T, r, q, sigma)
+    return -np.exp(-q * T) * norm.cdf(-d1)
 
 
 def down_in_put(S, K, H, T, r, q, sigma):

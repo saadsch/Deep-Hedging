@@ -105,11 +105,19 @@ def pnl_and_grad(pos, S, r, q, premium, payoff, cost):
     return pnl, grad, costs.sum(1)
 
 
-def features(S, S0, knocked, bs_delta):
+EXTRA_FEATURES = False   # True adds: current implied vol, distance to the barrier
+
+def features(S, S0, knocked, bs_delta, s=None):
+    """Network inputs. Column 3 MUST stay the BS delta (the network adds a
+    correction to it). Extra columns are appended after it."""
     n = len(S)
     tau = np.broadcast_to(1 - np.arange(N) / N, (n, N))
-    return np.stack([np.log(S[:, :-1] / S0[:, None]), tau,
-                     knocked[:, :-1].astype(float), bs_delta], axis=-1)
+    cols = [np.log(S[:, :-1] / S0[:, None]), tau,
+            knocked[:, :-1].astype(float), bs_delta]
+    if EXTRA_FEATURES:
+        cols += [s,                                                  # today's implied vol
+                 np.log(S[:, :-1] / (BARRIER * S0[:, None]))]        # log-distance to barrier
+    return np.stack(cols, axis=-1)
 
 
 def positions(net, X, n_puts):
@@ -182,7 +190,7 @@ def simulated_training_set(df, n, seed):
 def train(sim, cost, seed):
     S, r, q, s = sim
     S0, knocked, delta, n_puts, premium, payoff = bs_inputs(S, r, q, s)
-    X = features(S, S0, knocked, delta)
+    X = features(S, S0, knocked, delta, s)
     net, w, wm, wv = MLP(X.shape[-1], HIDDEN, seed), 0.0, 0.0, 0.0
     rng = np.random.default_rng(seed)
     for it in range(1, N_ITER + 1):
@@ -211,7 +219,7 @@ def main():
     df = load_inputs()
     start, end, S, r, q, s = real_brcs(df)
     S0, knocked, delta, n_puts, premium, payoff = bs_inputs(S, r, q, s)
-    X = features(S, S0, knocked, delta)
+    X = features(S, S0, knocked, delta, s)
     print(f"{len(S)} real BRCs, issued {start[0].date()} -> {start[-1].date()} "
           f"(pricing/hedging vol: {VOL_COL})")
     print(f"knocked in: {knocked[:, -1].mean():.1%} of BRCs, "

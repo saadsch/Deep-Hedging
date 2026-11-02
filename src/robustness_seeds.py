@@ -24,10 +24,12 @@ from backtest_bootstrap import SPLIT, bootstrap_paths, brcs_in, evaluate
 
 SEEDS = [0, 1, 2]
 INCLUDE_GBM = False          # True also retrains the GBM network (doubles the time)
+EXTRA_FEATURES = True        # network also sees implied vol + distance to barrier
 COST_BP = 5.0
 
 
 def main():
+    bt.EXTRA_FEATURES = EXTRA_FEATURES
     df = bt.load_inputs()
     split = pd.Timestamp(SPLIT)
     folds = [("A", df[df.index < split], (split, df.index[-1] + pd.Timedelta(days=1))),
@@ -55,7 +57,7 @@ def main():
 
     res = pd.DataFrame(rows)
     print(f"\nOUT-OF-SAMPLE P&L per BRC, {COST_BP:.0f} bp costs, {len(pnl_bs)} real BRCs, "
-          f"vol: {bt.VOL_COL}\n")
+          f"vol: {bt.VOL_COL}, extra features: {EXTRA_FEATURES}\n")
     print(res.round(2).to_string(index=False))
 
     bs = res[res["strategy"] == "BS delta"].iloc[0]
@@ -72,8 +74,9 @@ def main():
                   f"BS {bs[m]:8.2f}   better in {wins}/{len(v)} seeds")
 
     Path("results").mkdir(exist_ok=True)
-    res.round(4).to_csv("results/robustness_seeds.csv", index=False)
-    print("\nsaved results/robustness_seeds.csv")
+    name = "robustness_seeds_extra.csv" if EXTRA_FEATURES else "robustness_seeds.csv"
+    res.round(4).to_csv(f"results/{name}", index=False)
+    print(f"\nsaved results/{name}")
 
 
 if __name__ == "__main__":

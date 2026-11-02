@@ -64,7 +64,7 @@ def evaluate(net, S, r, q, s, cost):
     if net is None:
         pos = n_puts[:, None] * delta
     else:
-        pos = bt.positions(net, bt.features(S, S0, knocked, delta), n_puts[:, None])
+        pos = bt.positions(net, bt.features(S, S0, knocked, delta, s), n_puts[:, None])
     pnl, _, _ = bt.pnl_and_grad(pos, S, r, q, premium, payoff, cost)
     return pnl
 

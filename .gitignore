@@ -10,3 +10,4 @@ data/raw/
 data/processed/
 data/cedif/*
 !data/cedif/README.md
+data/

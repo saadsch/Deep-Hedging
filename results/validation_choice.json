@@ -1,0 +1,60 @@
+{
+  "final": {
+    "block": 21,
+    "max_adj": 0.3,
+    "n_iter": 300,
+    "ensemble": false
+  },
+  "decisions": {
+    "block63": {
+      "keep": false,
+      "dCVaR_real": [
+        13.83,
+        9.97,
+        13.07
+      ],
+      "dCVaR_boot": [
+        12.15,
+        12.84,
+        15.96
+      ],
+      "dmean": -3.97
+    },
+    "adj06": {
+      "keep": false,
+      "dCVaR_real": [
+        9.67,
+        9.05,
+        9.01
+      ],
+      "dCVaR_boot": [
+        -13.37,
+        -11.05,
+        -11.29
+      ],
+      "dmean": 5.39
+    },
+    "long": {
+      "keep": false,
+      "dCVaR_real": [
+        -0.31,
+        -1.95,
+        2.34
+      ],
+      "dCVaR_boot": [
+        0.8,
+        2.38,
+        1.71
+      ],
+      "dmean": 3.0
+    },
+    "ens": {
+      "keep": false,
+      "dCVaR_real": 0.06,
+      "dCVaR_boot": 0.13,
+      "dmean": 0.0
+    }
+  },
+  "lambda": 1.0,
+  "cost_bp": 5.0
+}
